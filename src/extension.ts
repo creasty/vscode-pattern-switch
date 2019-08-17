@@ -76,7 +76,7 @@ function computeRules(config: vscode.WorkspaceConfiguration): Rule[] {
       const current = toggle[i];
       const next = toggle[(i + 1) % len];
       rules.push({
-        from: new RegExp(`\\b${escapeRegexp(current)}\\b`, ""),
+        from: makeTogglePattern(current),
         to: escapeSubstitution(next),
         cursor: "contained",
         priority: 1,
@@ -165,7 +165,7 @@ function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
       start,
       end,
       cursor: rule.cursor,
-      priority: rule.priority || 0,
+      priority: rule.priority,
       substitution: replacePlaceholders(rule.to, match),
     };
   }
@@ -188,4 +188,11 @@ function replacePlaceholders(str: string, placeholders: string[]) {
   return str
     .replace(/(?<!\$)\$(\d+)/g, (_0, _1) => placeholders[+_1])
     .replace(/\$(\$\d+)/g, '$1');
+}
+
+function makeTogglePattern(str: string): RegExp {
+  const pat = escapeRegexp(str)
+    .replace(/^([a-z0-9])/i, '\\b$1')
+    .replace(/([a-z0-9])$/i, '$1\\b');
+  return new RegExp(pat);
 }

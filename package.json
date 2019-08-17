@@ -63,11 +63,11 @@
           },
           "default": [
             {
-              "from": "\b(it|describe|context|scenario)\b",
+              "from": "\\b(it|describe|context|scenario)\\b",
               "to": "x$1"
             },
             {
-              "from": "\bx(it|describe|context|scenario)\b",
+              "from": "\\bx(it|describe|context|scenario)\\b",
               "to": "$1"
             },
             {
