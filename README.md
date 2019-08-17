@@ -34,7 +34,7 @@ General:
 
 | Pattern | Description |
 |---|---|
-| `_+_`, `+` | Add/remove spaces around operators <code>*/%&lt;&gt;&amp;+-|^=~?!$#@\:.,'`</code> |
+| `_+_`, `+` | Add/remove spaces around operators: <code>&ast;&sol;&percnt;&lt;&gt;&amp;&plus;&#x2D;&vert;&Hat;&equals;&#x7E;&quest;&excl;&dollar;&num;&commat;&bsol;&colon;&period;&comma;&apos;&grave;</code> |
 | `true`, `false` | |
 | `on`, `off` | |
 | `yes`, `no` | |
