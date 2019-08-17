@@ -1,65 +1,71 @@
-# vscode-switch README
+# vscode-pattern-switch
 
-This is the README for your extension "vscode-switch". After writing up a brief description, we recommend including the following sections.
+Switch the text under cursor to alternative patterns.
 
-## Features
+## Configuration
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- `patternSwitch.replaceRules`
+- `patternSwitch.toggleRules`
 
-For example if there is an image subfolder under your extension project workspace:
+Please refer the contributions in `package.json` for more details.
 
-\!\[feature X\]\(images/feature-x.png\)
+## Command & keybinding
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- Command: `patternSwitch.switchUnderCursor`
 
-## Requirements
+I recommend to use the following keybindings.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+```json
+{
+  "key": "-",
+  "command": "patternSwitch.switchUnderCursor",
+  "when": "editorTextFocus && vim.active && vim.mode == 'Normal'"
+},
+{
+  "key": "ctrl+l",
+  "command": "patternSwitch.switchUnderCursor",
+  "when": "editorTextFocus && vim.active && vim.mode == 'Insert'"
+}
+```
 
-## Extension Settings
+## Default rules
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+General:
 
-For example:
+| Pattern | Description |
+|---|---|
+| `_+_`, `+` | Add/remove spaces around operators <code>*/%&lt;&gt;&amp;+-|^=~?!$#@\:.,'`</code> |
+| `true`, `false` | |
+| `on`, `off` | |
+| `yes`, `no` | |
+| `TRUE`, `FALSE` | |
+| `ON`, `OFF` | |
+| `YES`, `NO` | |
+| `public`, `protected`, `private` | |
+| `import`, `export` | |
+| `if`, `unless` | |
+| `bottom`, `top` | |
+| `down`, `up` | |
+| `left`, `right` | |
 
-This extension contributes the following settings:
+Golang:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+| Pattern | Description |
+|---|---|
+| `chan`, `<-chan`, `chan<-` | Channel: RW <> R <> W |
 
-## Known Issues
+Ruby:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+| Pattern | Description |
+|---|---|
+| `:foo`, `'foo'` | Symbol <> String |
+| `foo: ...`, `'foo' => ...` | Symbol key <> Hash rocket syntax |
 
-## Release Notes
+RSpec:
 
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+| Pattern | Description |
+|---|---|
+| `it`, `xit` | Mark/unmark as pending |
+| `describe`, `xdescribe` | Mark/unmark as pending |
+| `context`, `xcontext` | Mark/unmark as pending |
+| `scenario`, `xscenario` | Mark/unmark as pending |
