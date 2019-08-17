@@ -13,7 +13,7 @@ Please refer the contributions in `package.json` for more details.
 
 - Command: `patternSwitch.switchUnderCursor`
 
-I recommend to use the following keybindings.
+**Recommended keybindings:**
 
 ```json
 {
