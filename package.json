@@ -54,6 +54,10 @@
                   "end"
                 ],
                 "default": "contained"
+              },
+              "priority": {
+                "type": "number",
+                "default": 0
               }
             }
           },
@@ -81,12 +85,14 @@
             {
               "from": "(\\s+)([*/%<>&+\\-|\\^=~?!$#@\\\\:.,'`]+)(\\s+)",
               "to": "$2",
-              "cursor": "end"
+              "cursor": "end",
+              "priority": 10
             },
             {
               "from": "([^*/%<>&+\\-|\\^=~?!$#@\\\\:.,'`\\s])([*/%<>&+\\-|\\^=~?!$#@\\\\:.,'`]+)",
               "to": "$1 $2 ",
-              "cursor": "end"
+              "cursor": "end",
+              "priority": 10
             }
           ]
         },

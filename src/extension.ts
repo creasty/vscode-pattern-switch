@@ -43,6 +43,7 @@ interface Config {
     to: string;
     caseSensitive?: boolean;
     cursor?: CursorMovement;
+    priority?: number;
   }[];
   toggleRules: string[][];
 }
@@ -51,6 +52,7 @@ interface Rule {
   from: RegExp;
   to: string;
   cursor: CursorMovement;
+  priority: number;
 }
 
 function computeRules(config: vscode.WorkspaceConfiguration): Rule[] {
@@ -64,6 +66,7 @@ function computeRules(config: vscode.WorkspaceConfiguration): Rule[] {
       from: new RegExp(rule.from, rule.caseSensitive === true ? "" : "i"),
       to: rule.to,
       cursor: rule.cursor || "contained",
+      priority: rule.priority || 0,
     });
   }
 
@@ -76,6 +79,7 @@ function computeRules(config: vscode.WorkspaceConfiguration): Rule[] {
         from: new RegExp(`\\b${escapeRegexp(current)}\\b`, ""),
         to: escapeSubstitution(next),
         cursor: "contained",
+        priority: 1,
       });
     }
   }
@@ -88,6 +92,7 @@ interface Match {
   end: number;
   cursor: CursorMovement;
   substitution: string;
+  priority: number;
 }
 
 function substitute(textEditor: vscode.TextEditor, anchorPosition: vscode.Position, match: Match) {
@@ -152,7 +157,7 @@ function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
     if (start > selection.anchor.character || selection.anchor.character > end) {
       continue;
     }
-    if (finalMatch && (end - start) > (finalMatch.end - finalMatch.start)) {
+    if (finalMatch && (end - start) < (finalMatch.end - finalMatch.start) && rule.priority <= finalMatch.priority) {
       continue;
     }
 
@@ -160,6 +165,7 @@ function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
       start,
       end,
       cursor: rule.cursor,
+      priority: rule.priority || 0,
       substitution: replacePlaceholders(rule.to, match),
     };
   }
