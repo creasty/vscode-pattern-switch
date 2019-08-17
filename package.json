@@ -110,7 +110,11 @@
             ["YES", "NO"],
             ["public", "protected", "private"],
             ["import", "export"],
-            ["chan", "<-chan", "chan<-"]
+            ["chan", "<-chan", "chan<-"],
+            ["if", "unless"],
+            ["bottom", "top"],
+            ["down", "up"],
+            ["left", "right"]
           ]
         }
       }
