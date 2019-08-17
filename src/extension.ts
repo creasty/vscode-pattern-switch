@@ -63,7 +63,7 @@ function computeRules(config: vscode.WorkspaceConfiguration): Rule[] {
 
   for (const rule of replaceRules) {
     rules.push({
-      from: new RegExp(rule.from, rule.caseSensitive === true ? "" : "i"),
+      from: new RegExp(rule.from, rule.caseSensitive === true ? "g" : "ig"),
       to: rule.to,
       cursor: rule.cursor || "contained",
       priority: rule.priority || 0,
@@ -147,27 +147,31 @@ function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
 
   let finalMatch: Match | undefined;
   for (const rule of rules) {
-    const match = lineText.match(rule.from);
-    if (!match) {
-      continue;
-    }
+    rule.from.lastIndex = 0;
 
-    const start = match.index || 0;
-    const end = start + match[0].length;
-    if (start > selection.anchor.character || selection.anchor.character > end) {
-      continue;
-    }
-    if (finalMatch && (end - start) < (finalMatch.end - finalMatch.start) && rule.priority <= finalMatch.priority) {
-      continue;
-    }
+    while (true) {
+      const match = rule.from.exec(lineText);
+      if (!match) {
+        break;
+      }
 
-    finalMatch = {
-      start,
-      end,
-      cursor: rule.cursor,
-      priority: rule.priority,
-      substitution: replacePlaceholders(rule.to, match),
-    };
+      const start = match.index || 0;
+      const end = start + match[0].length;
+      if (start > selection.anchor.character || selection.anchor.character > end) {
+        continue;
+      }
+      if (finalMatch && (end - start) < (finalMatch.end - finalMatch.start) && rule.priority <= finalMatch.priority) {
+        continue;
+      }
+
+      finalMatch = {
+        start,
+        end,
+        cursor: rule.cursor,
+        priority: rule.priority,
+        substitution: replacePlaceholders(rule.to, match),
+      };
+    }
   }
 
   if (!finalMatch) {
@@ -177,22 +181,22 @@ function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
 }
 
 function escapeRegexp(str: string): string {
-	return str.replace(/[|\\{}()[\]^$+*?.-]/g, '\\$&');
+	return str.replace(/[|\\{}()[\]^$+*?.-]/g, "\\$&");
 }
 
 function escapeSubstitution(str: string): string {
-  return str.replace(/(?<!\$)\$(\d+)/g, '$$$$$1');
+  return str.replace(/(?<!\$)\$(\d+)/g, "$$$$$1");
 }
 
 function replacePlaceholders(str: string, placeholders: string[]) {
   return str
     .replace(/(?<!\$)\$(\d+)/g, (_0, _1) => placeholders[+_1])
-    .replace(/\$(\$\d+)/g, '$1');
+    .replace(/\$(\$\d+)/g, "$1");
 }
 
 function makeTogglePattern(str: string): RegExp {
   const pat = escapeRegexp(str)
-    .replace(/^([a-z0-9])/i, '\\b$1')
-    .replace(/([a-z0-9])$/i, '$1\\b');
-  return new RegExp(pat);
+    .replace(/^([a-z0-9])/i, "\\b$1")
+    .replace(/([a-z0-9])$/i, "$1\\b");
+  return new RegExp(pat, "g");
 }
