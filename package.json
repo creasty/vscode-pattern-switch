@@ -1,7 +1,8 @@
 {
+  "publisher": "creasty",
   "name": "vscode-pattern-switch",
   "displayName": "Pattern Switch",
-  "description": "Switch between patterns",
+  "description": "Switch the text under cursor to alternative patterns",
   "version": "0.0.1",
     "repository": {
     "type": "git",
