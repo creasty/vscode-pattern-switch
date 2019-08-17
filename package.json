@@ -25,11 +25,6 @@
         "key": "-",
         "command": "patternSwitch.switchUnderCursor",
         "when": "editorTextFocus && vim.active && vim.mode == 'Normal'"
-      },
-      {
-        "key": "ctrl+l",
-        "command": "patternSwitch.switchUnderCursor",
-        "when": "editorTextFocus && vim.active && vim.mode == 'Insert'"
       }
     ],
     "configuration": {
@@ -49,18 +44,20 @@
               "caseSensitive": {
                 "type": "boolean",
                 "default": true
+              },
+              "cursor": {
+                "type": "string",
+                "enum": [
+                  "keep",
+                  "contained",
+                  "start",
+                  "end"
+                ],
+                "default": "contained"
               }
             }
           },
           "default": [
-            {
-              "from": "\\{(.+?)\\}",
-              "to": "($1)"
-            },
-            {
-              "from": "\\((.+?)\\)",
-              "to": "{$1}"
-            },
             {
               "from": "\b(it|describe|context|scenario)\b",
               "to": "x$1"
@@ -83,11 +80,13 @@
             },
             {
               "from": "(\\s+)([*/%<>&+\\-|\\^=~?!$#@\\\\:.,'`]+)(\\s+)",
-              "to": "$2"
+              "to": "$2",
+              "cursor": "end"
             },
             {
-              "from": "(\\S)([*/%<>&+\\-|\\^=~?!$#@\\\\:.,'`]+)",
-              "to": "$1 $2 "
+              "from": "([^*/%<>&+\\-|\\^=~?!$#@\\\\:.,'`\\s])([*/%<>&+\\-|\\^=~?!$#@\\\\:.,'`]+)",
+              "to": "$1 $2 ",
+              "cursor": "end"
             }
           ]
         },
@@ -97,35 +96,15 @@
             "type": "string"
           },
           "default": [
-            [
-              "true",
-              "false"
-            ],
-            [
-              "TRUE",
-              "FALSE"
-            ],
-            [
-              "on",
-              "off"
-            ],
-            [
-              "ON",
-              "OFF"
-            ],
-            [
-              "yes",
-              "no"
-            ],
-            [
-              "YES",
-              "NO"
-            ],
-            [
-              "public",
-              "protected",
-              "private"
-            ]
+            ["true", "false"],
+            ["on", "off"],
+            ["yes", "no"],
+            ["TRUE", "FALSE"],
+            ["ON", "OFF"],
+            ["YES", "NO"],
+            ["public", "protected", "private"],
+            ["import", "export"],
+            ["chan", "<-chan", "chan<-"]
           ]
         }
       }

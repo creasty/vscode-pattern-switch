@@ -35,11 +35,14 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() {}
 
+type CursorMovement = "keep" | "contained" | "start" | "end";
+
 interface Config {
   replaceRules: {
     from: string;
     to: string;
     caseSensitive?: boolean;
+    cursor?: CursorMovement;
   }[];
   toggleRules: string[][];
 }
@@ -47,6 +50,7 @@ interface Config {
 interface Rule {
   from: RegExp;
   to: string;
+  cursor: CursorMovement;
 }
 
 function computeRules(config: vscode.WorkspaceConfiguration): Rule[] {
@@ -59,6 +63,7 @@ function computeRules(config: vscode.WorkspaceConfiguration): Rule[] {
     rules.push({
       from: new RegExp(rule.from, rule.caseSensitive === true ? "" : "i"),
       to: rule.to,
+      cursor: rule.cursor || "contained",
     });
   }
 
@@ -70,6 +75,7 @@ function computeRules(config: vscode.WorkspaceConfiguration): Rule[] {
       rules.push({
         from: new RegExp(`\\b${escapeRegexp(current)}\\b`, ""),
         to: escapeSubstitution(next),
+        cursor: "contained",
       });
     }
   }
@@ -78,22 +84,48 @@ function computeRules(config: vscode.WorkspaceConfiguration): Rule[] {
 }
 
 interface Match {
-  line: number;
   start: number;
   end: number;
+  cursor: CursorMovement;
   substitution: string;
 }
 
-function substitute(textEditor: vscode.TextEditor, match: Match) {
-  textEditor.edit(builder => {
-    const range = new vscode.Range(
-      match.line,
-      match.start,
-      match.line,
-      match.end,
-    );
-    builder.replace(range, match.substitution);
-  }, { undoStopBefore: true, undoStopAfter: true });
+function substitute(textEditor: vscode.TextEditor, anchorPosition: vscode.Position, match: Match) {
+  const range = new vscode.Range(
+    anchorPosition.line,
+    match.start,
+    anchorPosition.line,
+    match.end,
+  );
+
+  textEditor
+    .edit(builder => builder.replace(range, match.substitution), { undoStopBefore: true, undoStopAfter: true })
+    .then(() => {
+      switch (match.cursor) {
+        case "keep": {
+          textEditor.selection = new vscode.Selection(anchorPosition, anchorPosition);
+          break;
+        }
+        case "contained": {
+          let pos = new vscode.Position(anchorPosition.line, match.start + match.substitution.length);
+          if (pos.character > anchorPosition.character) {
+            pos = anchorPosition;
+          }
+          textEditor.selection = new vscode.Selection(pos, pos);
+          break;
+        }
+        case "start": {
+          const pos = new vscode.Position(anchorPosition.line, match.start);
+          textEditor.selection = new vscode.Selection(pos, pos);
+          break;
+        }
+        case "end": {
+          const pos = new vscode.Position(anchorPosition.line, match.start + match.substitution.length);
+          textEditor.selection = new vscode.Selection(pos, pos);
+          break;
+        }
+      }
+    });
 }
 
 function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
@@ -106,8 +138,7 @@ function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
     return;
   }
 
-  const line = selection.anchor.line;
-  const lineText = textEditor.document.lineAt(line).text;
+  const lineText = textEditor.document.lineAt(selection.anchor.line).text;
 
   let finalMatch: Match | undefined;
   for (const rule of rules) {
@@ -126,9 +157,9 @@ function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
     }
 
     finalMatch = {
-      line,
       start,
       end,
+      cursor: rule.cursor,
       substitution: replacePlaceholders(rule.to, match),
     };
   }
@@ -136,7 +167,7 @@ function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
   if (!finalMatch) {
     return;
   }
-  substitute(textEditor, finalMatch);
+  substitute(textEditor, selection.anchor, finalMatch);
 }
 
 function escapeRegexp(str: string): string {
@@ -149,6 +180,6 @@ function escapeSubstitution(str: string): string {
 
 function replacePlaceholders(str: string, placeholders: string[]) {
   return str
-    .replace(/(?<!\$)\$(\d+)/g, (_0, _1) => placeholders[+_1] || _0)
+    .replace(/(?<!\$)\$(\d+)/g, (_0, _1) => placeholders[+_1])
     .replace(/\$(\$\d+)/g, '$1');
 }
