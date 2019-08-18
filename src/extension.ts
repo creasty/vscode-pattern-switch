@@ -181,7 +181,7 @@ function switchUnderCursor(textEditor: vscode.TextEditor, rules: Rule[]) {
 }
 
 function escapeRegexp(str: string): string {
-	return str.replace(/[|\\{}()[\]^$+*?.-]/g, "\\$&");
+  return str.replace(/[|\\{}()[\]^$+*?.-]/g, "\\$&");
 }
 
 function escapeSubstitution(str: string): string {
@@ -196,7 +196,7 @@ function replacePlaceholders(str: string, placeholders: string[]) {
 
 function makeTogglePattern(str: string): RegExp {
   const pat = escapeRegexp(str)
-    .replace(/^([a-z0-9])/i, "\\b$1")
-    .replace(/([a-z0-9])$/i, "$1\\b");
+    .replace(/^[a-z0-9]/i, "\\b$&")
+    .replace(/[a-z0-9]$/i, "$&\\b");
   return new RegExp(pat, "g");
 }
