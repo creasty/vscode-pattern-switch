@@ -3,7 +3,7 @@
   "name": "vscode-pattern-switch",
   "displayName": "Pattern Switch",
   "description": "Switch the text under cursor to alternative patterns",
-  "version": "0.0.2",
+  "version": "0.0.3",
     "repository": {
     "type": "git",
     "url": "https://github.com/creasty/vscode-pattern-switch.git"
